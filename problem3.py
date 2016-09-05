@@ -1,5 +1,5 @@
 # USAGE
-# python problem4.py
+# python problem3.py
 
 # import the necessary packages
 import numpy as np

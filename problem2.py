@@ -1,6 +1,6 @@
 # USAGE
-# python skindetector.py
-# python skindetector.py --video video/skin_example.mov
+# python problem2.py
+# python problem2.py --video images/SampleVideo.mov
 
 # import the necessary packages
 from matplotlib import pyplot as plt
@@ -61,15 +61,51 @@ while True:
 	if cv2.waitKey(framePeriod) & 0xFF == ord("q"):
 		break
 
-# cleanup the video and close any open windows
 
+#Get the mean and std dev of all the metrics
 std1 = np.std(d1)
 std2 = np.std(d2)
 std3 = np.std(d3)
 
 mean1 = np.mean(d1)
-mean2 = np.mean(d1)
-mean3 = np.mean(d1)
+mean2 = np.mean(d2)
+mean3 = np.mean(d3)
 
+
+#Normalize them by using the slides formula
+alpha1 = (std2/std1*mean1) - mean2
+beta1 = std1/std2
+
+alpha2 = (std3/std1*mean1) - mean3
+beta2 = std1/std3
+
+newD2 = np.multiply(beta1, d2+alpha1)
+newD3 = np.multiply(beta2, d3+alpha2)
+
+#print the results
+print("D1 mean: " + str(mean1) + " std: " + str(std1))
+print("D2 mean: " + str(mean2) + " std: " + str(std2))
+print("D3 mean: " + str(mean3) + " std: " + str(std3))
+print("D2* mean: " + str(np.mean(newD2)) + " std: " + str(np.std(newD2)))
+print("D3* mean: " + str(np.mean(newD3)) + " std: " + str(np.std(newD3)))
+
+#preallocate some memory
+aux1 = np.zeros((frameCount, 3))
+aux2 = np.zeros((frameCount, 3))
+
+
+#for each time
+for i in range(0, frameCount):
+	aux1[i, :] = d1[i] - d2[i]
+	aux2[i, :] = d1[i] - d3[i]
+
+#Compare the functions using the L1 metric
+distance1 = 1/frameCount*(np.sum(aux1))
+distance2 = 1/frameCount*(np.sum(aux2))
+
+print("L1-metric D1 and D2*: " + str(distance1))
+print("L1-metric D1 and D3*: " + str(distance2))
+
+# cleanup the video and close any open windows
 video.release()
 cv2.destroyAllWindows()
